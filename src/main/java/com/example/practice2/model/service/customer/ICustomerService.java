@@ -9,8 +9,7 @@ public interface ICustomerService {
         List<Customer> findAll();
         void save(Customer c);
         List<Customer> findByName(String name);
-        void update(int Id,Customer customer);
-        void deleteByName(int id);
+        void update(Customer customer);
         Customer findById (int id);
     }
 

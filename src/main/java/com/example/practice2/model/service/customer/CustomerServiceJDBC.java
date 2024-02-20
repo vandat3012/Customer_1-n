@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.example.practice2.config.ConnectionJDBC.getConnection;
-
-// Biểu diễn logic nghiệp vụ
 public class CustomerServiceJDBC implements ICustomerService {
 
     public static final String SELECT_FROM_CUSTOMER = "select customer.* , province.nameProvince as nameProvince \n" +
@@ -21,12 +19,10 @@ public class CustomerServiceJDBC implements ICustomerService {
     @Override
     public List<Customer> findAll() {
         List<Customer> customerList = new ArrayList<>();
-        // Gọi kết nối
         Connection c = getConnection();
         try {
             PreparedStatement getAllQuery = c.prepareStatement(SELECT_FROM_CUSTOMER);
             ResultSet resultSet = getAllQuery.executeQuery();
-            // Chuyển từ resultset thành một list
             while (resultSet.next()) {
                 Integer id = resultSet.getInt("id");
                 String name = resultSet.getString("name");
@@ -89,27 +85,19 @@ public class CustomerServiceJDBC implements ICustomerService {
     }
 
     @Override
-    public void update(int id,Customer customer) {
+    public void update(Customer customer) {
         Connection connection = getConnection();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("update customer \n" +
-                    "set name = ?,email = ?,address = ?,idProvince=?" +
-                    "where id = ?;");
+            PreparedStatement preparedStatement = connection.prepareStatement("update customer set name = ?,email = ?,address = ?,idProvince=? where id = ?;");
             preparedStatement.setString(1,customer.getName());
             preparedStatement.setString(2,customer.getEmail());
             preparedStatement.setString(3,customer.getAddress());
-            preparedStatement.setString(4,customer.getoProvince().getNameProvince());
+            preparedStatement.setInt(4,customer.getoProvince().getIdProvince());
             preparedStatement.setInt(5,customer.getId());
             preparedStatement.executeUpdate();
-
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public void deleteByName(int id) {
-
     }
 
     @Override
@@ -117,15 +105,15 @@ public class CustomerServiceJDBC implements ICustomerService {
         Customer customer = null;
         Connection connection = getConnection();
         try {
-            PreparedStatement preparedStatement = connection.prepareStatement("select customer.* , province.nameProvince as nameProvince \n" +
+            PreparedStatement preparedStatement = connection.prepareStatement("select id, name, email,address,province.idProvince,province.nameProvince \n" +
                     "from customer \n" +
                     "join province\n" +
                     "on customer.idProvince = province.idProvince\n" +
-                    "where id = ?;");
+                    "where id = ?;\n");
             preparedStatement.setInt(1,id);
             ResultSet resultSet = preparedStatement.executeQuery();
             while (resultSet.next()){
-                int id1 = resultSet.getInt("id");
+                Integer id1 = resultSet.getInt("id");
                 String name = resultSet.getString("name");
                 String email = resultSet.getString("email");
                 String address = resultSet.getString("address");

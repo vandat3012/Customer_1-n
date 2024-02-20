@@ -39,7 +39,7 @@ static IProvince iProvince = new ProvinceJDBC();
     }
 
     private void showFormUpdate(HttpServletRequest req, HttpServletResponse resp) {
-        int id = Integer.parseInt(req.getParameter("id"));
+        Integer id = Integer.parseInt(req.getParameter("id"));
         List<Province> province = iProvince.findAll();
         req.setAttribute("province",province);
         Customer customer =  iCustomerService.findById(id);
@@ -47,6 +47,7 @@ static IProvince iProvince = new ProvinceJDBC();
         RequestDispatcher requestDispatcher = req.getRequestDispatcher("edit.jsp");
         try {
             requestDispatcher.forward(req,resp);
+            resp.sendRedirect("/customers");
         } catch (ServletException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
@@ -89,19 +90,20 @@ static IProvince iProvince = new ProvinceJDBC();
                 break;
             case "update" :
                 updateCustomer(req,resp);
+                break;
         }
     }
 
     private void updateCustomer(HttpServletRequest req, HttpServletResponse resp) {
-        int id = Integer.parseInt(req.getParameter("id"));
+        Integer id = Integer.valueOf(req.getParameter("id"));
         String name = req.getParameter("name");
         String email = req.getParameter("email");
         String address = req.getParameter("address");
         Integer idProvince = Integer.valueOf(req.getParameter("idProvince"));
         String nameProvince = req.getParameter("nameProvince");
         Province province = new Province(idProvince,nameProvince);
-        Customer customer = new Customer(name,email,address,province);
-        iCustomerService.update(id,customer);
+        Customer customer = new Customer(id,name,email,address,province);
+        iCustomerService.update(customer);
         try {
             resp.sendRedirect("/customers");
         } catch (IOException e) {
@@ -110,9 +112,7 @@ static IProvince iProvince = new ProvinceJDBC();
     }
 
     private void showFindByName(HttpServletRequest req, HttpServletResponse resp) {
-        // Lấy dữu liệu lên
         String name = req.getParameter("name");
-        // Lấy ra list
         List<Customer> customerList = iCustomerService.findByName(name);
         RequestDispatcher requestDispatcher = req.getRequestDispatcher("/customerlist.jsp");
         req.setAttribute("kh",customerList);
